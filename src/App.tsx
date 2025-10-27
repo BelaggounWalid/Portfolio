@@ -202,7 +202,7 @@ function App() {
                   <Mail className="text-blue-600" size={24} />
                   <div>
                     <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Âge</p>
-                    <p className={`font-medium ${isDark ? 'text-white' : 'text-slate-900'}`}>21 ans</p>
+                    <p className={`font-medium ${isDark ? 'text-white' : 'text-slate-900'}`}>22 ans</p>
                   </div>
                 </div>
               </div>
