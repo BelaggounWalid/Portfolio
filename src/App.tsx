@@ -253,7 +253,6 @@ function App() {
                 <span className="inline-block px-4 py-2 bg-cyan-100 text-cyan-800 rounded-full font-medium">Sept. 2023 - 2025</span>
               </div>
               <p className={`mb-2 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>Avignon, France</p>
-              <p className={`font-medium ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>Classé 5ème sur 71 étudiants (15.15/20)</p>
             </div>
 
             <div className={`rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow border-l-4 border-slate-600 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
