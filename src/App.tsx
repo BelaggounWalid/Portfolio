@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Github, Linkedin, Mail, Phone, MapPin, Download, ExternalLink, Menu, X, Moon, Sun } from 'lucide-react';
+import { Github, Linkedin, Mail, Phone, MapPin, Download, ExternalLink, Menu, X, Moon, Sun, GitBranch } from 'lucide-react';
 import Chatbot from './components/Chatbot';
 
 function App() {
@@ -332,15 +332,28 @@ function App() {
                   <span className="px-3 py-1 bg-cyan-100 text-cyan-800 rounded-full text-sm font-medium">Socket.IO</span>
                   <span className="px-3 py-1 bg-cyan-100 text-cyan-800 rounded-full text-sm font-medium">WebRTC</span>
                 </div>
-                <a
-                  href="https://studyhive.example.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-cyan-600 hover:text-cyan-700 font-medium"
-                >
-                  <ExternalLink size={18} />
-                  Voir le projet
-                </a>
+                <div className="flex gap-3">
+                  <a
+                    href="https://studyhive-frontend.onrender.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-cyan-600 hover:text-cyan-700 font-medium"
+                  >
+                    <ExternalLink size={18} />
+                    Voir le projet
+                  </a>
+                  <a
+                    href="https://github.com/Mohammed-Djellouli/StudyHive"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex items-center gap-2 font-medium ${
+                      isDark ? 'text-gray-300 hover:text-white' : 'text-slate-700 hover:text-slate-900'
+                    }`}
+                  >
+                    <Github size={18} />
+                    GitHub Repo
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -361,6 +374,17 @@ function App() {
                   <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Word2Vec</span>
                   <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Flask</span>
                 </div>
+                <a
+                  href="https://gitlab.com/groupe_74/wordleproject"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center gap-2 font-medium ${
+                    isDark ? 'text-gray-300 hover:text-white' : 'text-slate-700 hover:text-slate-900'
+                  }`}
+                >
+                  <GitBranch size={18} />
+                  GitLab Repo
+                </a>
               </div>
             </div>
 
