@@ -593,7 +593,7 @@ function App() {
           <div className={`rounded-2xl shadow-xl p-8 md:p-12 border ${
             isDark ? 'bg-gray-900 border-gray-700' : 'bg-gradient-to-br from-slate-50 to-white border-slate-200'
           }`}>
-            <div className="grid md:grid-cols-2 gap-8 mb-8">
+            <div className="mb-8 flex justify-center">
               <a
                 href="mailto:aniswalidbelaggoun@gmail.com"
                 className={`flex items-center gap-4 p-6 rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 border ${
@@ -606,21 +606,6 @@ function App() {
                 <div className="overflow-hidden">
                   <p className={`text-sm mb-1 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Email</p>
                   <p className={`font-medium truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>aniswalidbelaggoun@gmail.com</p>
-                </div>
-              </a>
-
-              <a
-                href="tel:+33744805601"
-                className={`flex items-center gap-4 p-6 rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 border ${
-                  isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-100'
-                }`}
-              >
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Phone className="text-green-600" size={24} />
-                </div>
-                <div>
-                  <p className={`text-sm mb-1 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Téléphone</p>
-                  <p className={`font-medium ${isDark ? 'text-white' : 'text-slate-900'}`}>07 44 80 56 01</p>
                 </div>
               </a>
             </div>
