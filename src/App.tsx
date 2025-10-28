@@ -145,7 +145,7 @@ function App() {
               <h1 className={`text-5xl sm:text-6xl font-bold leading-tight animate-fade-in ${
                 isDark ? 'text-white' : 'text-slate-900'
               }`}>
-                Anis <span className={`bg-gradient-to-r ${isDark ? 'from-blue-400 to-cyan-400' : 'from-blue-600 to-cyan-600'} bg-clip-text text-transparent animate-shimmer`}>BELAGGOUN</span>
+                Anis <span className={`bg-gradient-to-r ${isDark ? 'from-blue-400 to-cyan-400 bg-clip-text text-transparent animate-shimmer' : 'from-blue-600 to-cyan-600 bg-clip-text text-transparent'}`}>BELAGGOUN</span>
               </h1>
               <p className={`text-xl leading-relaxed ${
                 isDark ? 'text-gray-300' : 'text-slate-600'
