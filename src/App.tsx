@@ -5,6 +5,7 @@ import Chatbot from './components/Chatbot';
 function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -16,6 +17,26 @@ function App() {
   useEffect(() => {
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
   }, [isDark]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleSections((prev) => new Set(prev).add(entry.target.id));
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const sections = document.querySelectorAll('section[id]');
+    sections.forEach((section) => observer.observe(section));
+
+    return () => {
+      sections.forEach((section) => observer.unobserve(section));
+    };
+  }, []);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -38,7 +59,7 @@ function App() {
           <div className="flex justify-between items-center h-16">
             <button
               onClick={() => scrollToSection('home')}
-              className={`text-2xl font-bold bg-gradient-to-r transition-all ${
+              className={`text-2xl font-bold bg-gradient-to-r transition-all hover:scale-110 hover:animate-pulse ${
                 isDark
                   ? 'from-blue-400 to-cyan-400 bg-clip-text text-transparent'
                   : 'from-slate-700 to-slate-900 bg-clip-text text-transparent hover:from-slate-600 hover:to-slate-800'
@@ -115,14 +136,16 @@ function App() {
         </div>
       </nav>
 
-      <section id="home" className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+      <section id="home" className={`pt-32 pb-20 px-4 sm:px-6 lg:px-8 transition-all duration-1000 ${
+        visibleSections.has('home') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      }`}>
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <h1 className={`text-5xl sm:text-6xl font-bold leading-tight ${
+              <h1 className={`text-5xl sm:text-6xl font-bold leading-tight animate-fade-in ${
                 isDark ? 'text-white' : 'text-slate-900'
               }`}>
-                Anis <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">BELAGGOUN</span>
+                Anis <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent animate-shimmer">BELAGGOUN</span>
               </h1>
               <p className={`text-xl leading-relaxed ${
                 isDark ? 'text-gray-300' : 'text-slate-600'
@@ -167,19 +190,22 @@ function App() {
               </div>
             </div>
             <div className="relative">
-              <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-300">
+              <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-300 animate-pulse-once">
                 <img
                   src="/WhatsApp Image 2025-10-27 at 22.37.35.jpeg"
                   alt="Anis BELAGGOUN"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover hover:brightness-110 transition-all duration-500"
                 />
+                <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="about" className={`py-20 px-4 sm:px-6 lg:px-8 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+      <section id="about" className={`py-20 px-4 sm:px-6 lg:px-8 transition-all duration-1000 ${
+        visibleSections.has('about') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      } ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
         <div className="max-w-7xl mx-auto">
           <h2 className={`text-4xl font-bold mb-12 text-center ${isDark ? 'text-white' : 'text-slate-900'}`}>À propos de moi</h2>
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -191,15 +217,19 @@ function App() {
                 Avec une expérience significative en développement web et l'IA générative, je recherche actuellement une alternance à partir de septembre 2025 pour mettre en pratique mes compétences et approfondir mon expertise.
               </p>
               <div className="grid grid-cols-2 gap-4 pt-4">
-                <div className={`flex items-center gap-3 p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-slate-50'}`}>
-                  <MapPin className="text-blue-600" size={24} />
+                <div className={`flex items-center gap-3 p-4 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+                  isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-slate-50 hover:bg-slate-100'
+                }`}>
+                  <MapPin className="text-blue-600 animate-bounce" size={24} />
                   <div>
                     <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Localisation</p>
                     <p className={`font-medium ${isDark ? 'text-white' : 'text-slate-900'}`}>Villeurbanne, France</p>
                   </div>
                 </div>
-                <div className={`flex items-center gap-3 p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-slate-50'}`}>
-                  <Mail className="text-blue-600" size={24} />
+                <div className={`flex items-center gap-3 p-4 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+                  isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-slate-50 hover:bg-slate-100'
+                }`}>
+                  <Mail className="text-blue-600 animate-pulse" size={24} />
                   <div>
                     <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Âge</p>
                     <p className={`font-medium ${isDark ? 'text-white' : 'text-slate-900'}`}>22 ans</p>
@@ -211,19 +241,21 @@ function App() {
               <img
                 src="/WhatsApp Image 2025-10-27 at 22.37.06.jpeg"
                 alt="Profile"
-                className="rounded-xl shadow-lg w-full h-full object-cover aspect-square hover:scale-105 transition-transform duration-300"
+                className="rounded-xl shadow-lg w-full h-full object-cover aspect-square hover:scale-105 transition-transform duration-300 hover:shadow-2xl hover:brightness-110 hover:rotate-1"
               />
               <img
                 src="/WhatsApp Image 2025-10-27 at 22.38.15.jpeg"
                 alt="Travel"
-                className="rounded-xl shadow-lg w-full h-full object-cover aspect-square hover:scale-105 transition-transform duration-300"
+                className="rounded-xl shadow-lg w-full h-full object-cover aspect-square hover:scale-105 transition-transform duration-300 hover:shadow-2xl hover:brightness-110 hover:-rotate-1"
               />
             </div>
           </div>
         </div>
       </section>
 
-      <section id="education" className="py-20 px-4 sm:px-6 lg:px-8">
+      <section id="education" className={`py-20 px-4 sm:px-6 lg:px-8 transition-all duration-1000 ${
+        visibleSections.has('education') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      }`}>
         <div className="max-w-7xl mx-auto">
           <h2 className={`text-4xl font-bold mb-12 text-center ${isDark ? 'text-white' : 'text-slate-900'}`}>Formation</h2>
           <div className="space-y-8">
@@ -285,7 +317,9 @@ function App() {
         </div>
       </section>
 
-      <section id="projects" className={`py-20 px-4 sm:px-6 lg:px-8 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+      <section id="projects" className={`py-20 px-4 sm:px-6 lg:px-8 transition-all duration-1000 ${
+        visibleSections.has('projects') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      } ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
         <div className="max-w-7xl mx-auto">
           <h2 className={`text-4xl font-bold mb-12 text-center ${isDark ? 'text-white' : 'text-slate-900'}`}>Projets</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -452,7 +486,9 @@ function App() {
         </div>
       </section>
 
-      <section id="skills" className="py-20 px-4 sm:px-6 lg:px-8">
+      <section id="skills" className={`py-20 px-4 sm:px-6 lg:px-8 transition-all duration-1000 ${
+        visibleSections.has('skills') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      }`}>
         <div className="max-w-7xl mx-auto">
           <h2 className={`text-4xl font-bold mb-12 text-center ${isDark ? 'text-white' : 'text-slate-900'}`}>Compétences</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -548,7 +584,9 @@ function App() {
         </div>
       </section>
 
-      <section id="contact" className={`py-20 px-4 sm:px-6 lg:px-8 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+      <section id="contact" className={`py-20 px-4 sm:px-6 lg:px-8 transition-all duration-1000 ${
+        visibleSections.has('contact') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      } ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
         <div className="max-w-4xl mx-auto">
           <h2 className={`text-4xl font-bold mb-12 text-center ${isDark ? 'text-white' : 'text-slate-900'}`}>Me contacter</h2>
 
