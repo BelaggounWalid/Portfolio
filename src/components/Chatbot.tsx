@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send } from 'lucide-react';
+import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
 
 interface Message {
   text: string;
@@ -7,30 +7,36 @@ interface Message {
 }
 
 const knowledgeBase = {
-  formation: {
-    keywords: ['formation', 'études', 'diplôme', 'université', 'master', 'licence', 'école'],
-    response: "Je suis actuellement en Master Informatique à l'Université Claude Bernard Lyon 1 depuis septembre 2025. J'ai obtenu ma Licence Informatique à l'Université d'Avignon (2023-2025) où j'étais classé 5ème sur 71 étudiants (15.15/20). J'ai également fait une classe préparatoire intégrée à l'ESI en Algérie (2021-2023)."
-  },
-  projets: {
-    keywords: ['projet', 'réalisation', 'développement', 'application', 'chatbot', 'studyhive', 'wordle'],
-    response: "Mes principaux projets incluent : 1) Un Chatbot RH Intelligent basé sur RAG avec LangChain et ChromaDB, 2) StudyHive - une plateforme collaborative avec lecture YouTube synchronisée et WebRTC, 3) Un clone de Wordle avec système d'indices intelligent utilisant Word2Vec, 4) Des analyses factorielles sur les températures en capitales européennes."
-  },
-  competences: {
-    keywords: ['compétence', 'skill', 'technologie', 'langage', 'framework', 'outil'],
-    response: "Mes compétences principales : Intelligence Artificielle (Python, Pandas, NumPy, NLP, HuggingFace), Développement Web (React, Node.js, Express, MongoDB), DevOps (Git, Docker, Jenkins), Data Science (R, Excel VBA, ACP). Je maîtrise également l'anglais niveau C2 certifié LanguageCert."
-  },
-  experience: {
-    keywords: ['expérience', 'stage', 'travail', 'alternance', 'recherche'],
-    response: "J'ai effectué un stage de recherche au Laboratoire de Mathématiques d'Avignon (mai-juillet 2025) sur l'Approximate Bayesian Computation pour les processus de Hawkes. Je recherche actuellement une alternance à partir de septembre 2025 en Intelligence Artificielle et développement web."
-  },
-  contact: {
-    keywords: ['contact', 'email', 'téléphone', 'linkedin', 'github', 'joindre'],
-    response: "Vous pouvez me contacter par email à aniswalidbelaggoun@gmail.com, par téléphone au 07 44 80 56 01, ou sur LinkedIn (anisBelaggoun) et GitHub (BelaggounWalid). Je suis basé à Villeurbanne (69100), France."
-  },
-  presentation: {
-    keywords: ['qui', 'présentation', 'profil', 'à propos', 'parcours'],
-    response: "Je suis Anis BELAGGOUN, étudiant en Master Informatique à Lyon 1, passionné par l'Intelligence Artificielle et le développement web. J'ai 21 ans et je recherche une alternance pour mettre en pratique mes compétences en IA et approfondir mon expertise."
+  formation: "Anis est actuellement en Master Informatique à l'Université Claude Bernard Lyon 1 depuis septembre 2025. Il a obtenu sa Licence Informatique à l'Université d'Avignon (2023-2025). Il a également fait une classe préparatoire intégrée à l'ESI en Algérie (2021-2023).",
+  projets: "Les projets d'Anis incluent : 1) Chatbot RH Intelligent basé sur RAG avec LangChain et ChromaDB, 2) StudyHive - plateforme collaborative avec lecture YouTube synchronisée et WebRTC, 3) Clone de Wordle avec Word2Vec, 4) WildFire Simulation en Java, 5) Monitoring System en Python avec Flask.",
+  competences: "Anis maîtrise l'Intelligence Artificielle (Python, Pandas, NumPy, NLP, HuggingFace), le Développement Web (React, Node.js, TypeScript, Tailwind), le Backend (Express, Flask, MongoDB), DevOps (Git, Docker, CI/CD). Il parle anglais niveau C2 certifié LanguageCert et français courant.",
+  experience: "Anis a effectué un stage de recherche au Laboratoire de Mathématiques d'Avignon (mai-juillet 2025) sur l'Approximate Bayesian Computation. Il recherche une alternance à partir de septembre 2025.",
+  contact: "Email: aniswalidbelaggoun@gmail.com, Discord: anisbelaggoun_46805, LinkedIn: https://www.linkedin.com/in/anis-belaggoun-1aa4a72a4/, GitHub: BelaggounWalid, Localisation: Villeurbanne (69100), France.",
+  presentation: "Anis BELAGGOUN est étudiant en Master Informatique à Lyon 1, passionné par l'IA et le développement web. Il a 22 ans et recherche une alternance."
+};
+
+const DEEPSEEK_API_KEY = 'sk-1fe1f7693c5b46698f7c59b10148dad4';
+const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+
+const retrieveContext = (query: string): string => {
+  const lowerQuery = query.toLowerCase();
+  let context = "Information sur Anis BELAGGOUN:\n\n";
+  
+  const relevantSections = [];
+  if (lowerQuery.includes('formation') || lowerQuery.includes('étud') || lowerQuery.includes('diplôm')) relevantSections.push(knowledgeBase.formation);
+  if (lowerQuery.includes('projet') || lowerQuery.includes('réalisat')) relevantSections.push(knowledgeBase.projets);
+  if (lowerQuery.includes('compéten') || lowerQuery.includes('skill') || lowerQuery.includes('technolog')) relevantSections.push(knowledgeBase.competences);
+  if (lowerQuery.includes('expérience') || lowerQuery.includes('stage') || lowerQuery.includes('alternance')) relevantSections.push(knowledgeBase.experience);
+  if (lowerQuery.includes('contact') || lowerQuery.includes('email') || lowerQuery.includes('discord') || lowerQuery.includes('linkedin')) relevantSections.push(knowledgeBase.contact);
+  
+  if (relevantSections.length === 0) {
+    // Return all context if no specific match
+    context += knowledgeBase.presentation + "\n\n" + knowledgeBase.formation + "\n\n" + knowledgeBase.projets;
+  } else {
+    context += relevantSections.join("\n\n");
   }
+  
+  return context;
 };
 
 export default function Chatbot({ isDark }: { isDark: boolean }) {
@@ -39,6 +45,7 @@ export default function Chatbot({ isDark }: { isDark: boolean }) {
     { text: "Bonjour ! Je suis l'assistant virtuel d'Anis. Posez-moi des questions sur son parcours, ses compétences ou ses projets !", isBot: true }
   ]);
   const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -49,39 +56,51 @@ export default function Chatbot({ isDark }: { isDark: boolean }) {
     scrollToBottom();
   }, [messages]);
 
-  const findBestResponse = (query: string): string => {
-    const lowerQuery = query.toLowerCase();
-    let bestMatch = { category: '', score: 0 };
-
-    for (const [category, data] of Object.entries(knowledgeBase)) {
-      const matchCount = data.keywords.filter(keyword =>
-        lowerQuery.includes(keyword)
-      ).length;
-
-      if (matchCount > bestMatch.score) {
-        bestMatch = { category, score: matchCount };
-      }
-    }
-
-    if (bestMatch.score > 0) {
-      return knowledgeBase[bestMatch.category as keyof typeof knowledgeBase].response;
-    }
-
-    return "Je n'ai pas compris votre question. Vous pouvez me demander des informations sur la formation, les projets, les compétences, l'expérience ou les coordonnées d'Anis.";
-  };
-
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
+  const handleSend = async () => {
+    if (!inputValue.trim() || isLoading) return;
 
     const userMessage: Message = { text: inputValue, isBot: false };
     setMessages(prev => [...prev, userMessage]);
-
-    setTimeout(() => {
-      const botResponse = findBestResponse(inputValue);
-      setMessages(prev => [...prev, { text: botResponse, isBot: true }]);
-    }, 500);
-
     setInputValue('');
+    setIsLoading(true);
+
+    // Retrieve relevant context
+    const context = retrieveContext(inputValue);
+    
+    try {
+      const response = await fetch(DEEPSEEK_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [
+            {
+              role: 'system',
+              content: `Tu es l'assistant virtuel d'Anis BELAGGOUN, étudiant en Master Informatique. Réponds toujours en français de manière amicale et professionnelle. Utilise uniquement les informations fournies dans le contexte.`
+            },
+            {
+              role: 'user',
+              content: `Contexte sur Anis:\n${context}\n\nQuestion de l'utilisateur: ${inputValue}`
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 500
+        })
+      });
+
+      const data = await response.json();
+      const botResponse = data.choices?.[0]?.message?.content || "Désolé, je n'ai pas pu obtenir de réponse.";
+      
+      setMessages(prev => [...prev, { text: botResponse, isBot: true }]);
+    } catch (error) {
+      console.error('Error calling Deepseek API:', error);
+      setMessages(prev => [...prev, { text: "Désolé, une erreur s'est produite. Veuillez réessayer.", isBot: true }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -147,6 +166,15 @@ export default function Chatbot({ isDark }: { isDark: boolean }) {
                 </div>
               </div>
             ))}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className={`max-w-[80%] p-3 rounded-2xl ${
+                  isDark ? 'bg-gray-700 text-white' : 'bg-white text-gray-900 shadow-md'
+                }`}>
+                  <Loader2 className="animate-spin" size={20} />
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
 
@@ -166,9 +194,14 @@ export default function Chatbot({ isDark }: { isDark: boolean }) {
               />
               <button
                 onClick={handleSend}
-                className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                disabled={isLoading}
+                className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Send size={20} className="text-white" />
+                {isLoading ? (
+                  <Loader2 size={20} className="text-white animate-spin" />
+                ) : (
+                  <Send size={20} className="text-white" />
+                )}
               </button>
             </div>
           </div>
