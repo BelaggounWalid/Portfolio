@@ -142,7 +142,7 @@ function App() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <h1 className={`text-5xl sm:text-6xl font-bold leading-tight animate-fade-in ${
+              <h1 className={`text-5xl sm:text-6xl font-bold leading-tight ${
                 isDark ? 'text-white' : 'text-slate-900'
               }`}>
                 Anis <span className={`bg-gradient-to-r ${isDark ? 'from-blue-400 to-cyan-400 bg-clip-text text-transparent animate-shimmer' : 'from-blue-600 to-cyan-600 bg-clip-text text-transparent'}`}>BELAGGOUN</span>
