@@ -159,7 +159,7 @@ function App() {
                 }`}>
                   <Github size={24} className={isDark ? 'text-gray-300' : 'text-slate-700'} />
                 </a>
-                <a href="https://linkedin.com/in/anisBelaggoun" target="_blank" rel="noopener noreferrer" className={`p-3 rounded-full shadow-md hover:shadow-lg transition-all hover:scale-110 ${
+                <a href="https://www.linkedin.com/in/anis-belaggoun-1aa4a72a4/" target="_blank" rel="noopener noreferrer" className={`p-3 rounded-full shadow-md hover:shadow-lg transition-all hover:scale-110 ${
                   isDark ? 'bg-gray-800' : 'bg-white'
                 }`}>
                   <Linkedin size={24} className={isDark ? 'text-gray-300' : 'text-slate-700'} />
@@ -391,19 +391,60 @@ function App() {
               isDark ? 'bg-gray-900 border-gray-700' : 'bg-gradient-to-br from-slate-50 to-white border-slate-200'
             }`}>
               <div className="p-8">
-                <div className="w-12 h-12 bg-slate-600 rounded-lg flex items-center justify-center mb-4">
-                  <span className="text-white text-2xl font-bold">DS</span>
+                <div className="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center mb-4">
+                  <span className="text-white text-2xl font-bold">🔥</span>
                 </div>
-                <h3 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>Analyse Factorielle</h3>
+                <h3 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>WildFire Simulation</h3>
                 <p className={`mb-4 leading-relaxed ${isDark ? 'text-gray-300' : 'text-slate-600'}`}>
-                  Étude des températures dans les capitales européennes avec ACP, CAH, k-means et HCPC. Visualisations et rapports en R.
+                  Simulation de propagation de feux de forêt en Java avec modélisation physique réaliste et visualisation interactive.
                 </p>
                 <div className="flex flex-wrap gap-2 mb-6">
-                  <span className="px-3 py-1 bg-slate-100 text-slate-800 rounded-full text-sm font-medium">R</span>
-                  <span className="px-3 py-1 bg-slate-100 text-slate-800 rounded-full text-sm font-medium">ACP</span>
-                  <span className="px-3 py-1 bg-slate-100 text-slate-800 rounded-full text-sm font-medium">RMarkdown</span>
-                  <span className="px-3 py-1 bg-slate-100 text-slate-800 rounded-full text-sm font-medium">LaTeX</span>
+                  <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">Java</span>
+                  <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">Swing</span>
+                  <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">Simulation</span>
                 </div>
+                <a
+                  href="https://github.com/BelaggounWalid/WildFire_Simulation"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center gap-2 font-medium ${
+                    isDark ? 'text-gray-300 hover:text-white' : 'text-slate-700 hover:text-slate-900'
+                  }`}
+                >
+                  <Github size={18} />
+                  GitHub Repo
+                </a>
+              </div>
+            </div>
+
+            <div className={`rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all transform hover:-translate-y-2 border ${
+              isDark ? 'bg-gray-900 border-gray-700' : 'bg-gradient-to-br from-slate-50 to-white border-slate-200'
+            }`}>
+              <div className="p-8">
+                <div className="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center mb-4">
+                  <span className="text-white text-2xl font-bold">📊</span>
+                </div>
+                <h3 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>Monitoring System</h3>
+                <p className={`mb-4 leading-relaxed ${isDark ? 'text-gray-300' : 'text-slate-600'}`}>
+                  Système de monitoring complet avec surveillance CPU/RAM, détection de crises, alertes email et interface web Flask.
+                </p>
+                <div className="flex flex-wrap gap-2 mb-6">
+                  <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">Python</span>
+                  <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">Flask</span>
+                  <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">Bash</span>
+                  <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">SQLite</span>
+                </div>
+                <a
+                  href="https://github.com/BelaggounWalid/MonitoringSystem"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center gap-2 font-medium ${
+                    isDark ? 'text-gray-300 hover:text-white' : 'text-slate-700 hover:text-slate-900'
+                  }`}
+                >
+                  <Github size={18} />
+                  GitHub Repo
+                </a>
               </div>
             </div>
 
@@ -481,22 +522,6 @@ function App() {
                 <span className={`px-3 py-1 rounded-lg text-sm ${isDark ? 'bg-gray-700 text-gray-300' : 'bg-slate-100 text-slate-700'}`}>Jenkins</span>
                 <span className={`px-3 py-1 rounded-lg text-sm ${isDark ? 'bg-gray-700 text-gray-300' : 'bg-slate-100 text-slate-700'}`}>CI/CD</span>
                 <span className={`px-3 py-1 rounded-lg text-sm ${isDark ? 'bg-gray-700 text-gray-300' : 'bg-slate-100 text-slate-700'}`}>Agile/SCRUM</span>
-              </div>
-            </div>
-
-            <div className={`rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
-              <h3 className={`text-xl font-bold mb-6 flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <span className="text-purple-600 text-xl">📊</span>
-                </div>
-                Data Science
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                <span className={`px-3 py-1 rounded-lg text-sm ${isDark ? 'bg-gray-700 text-gray-300' : 'bg-slate-100 text-slate-700'}`}>Excel VBA</span>
-                <span className={`px-3 py-1 rounded-lg text-sm ${isDark ? 'bg-gray-700 text-gray-300' : 'bg-slate-100 text-slate-700'}`}>ACP</span>
-                <span className={`px-3 py-1 rounded-lg text-sm ${isDark ? 'bg-gray-700 text-gray-300' : 'bg-slate-100 text-slate-700'}`}>AFD</span>
-                <span className={`px-3 py-1 rounded-lg text-sm ${isDark ? 'bg-gray-700 text-gray-300' : 'bg-slate-100 text-slate-700'}`}>AFCM</span>
-                <span className={`px-3 py-1 rounded-lg text-sm ${isDark ? 'bg-gray-700 text-gray-300' : 'bg-slate-100 text-slate-700'}`}>R</span>
               </div>
             </div>
 
@@ -591,7 +616,7 @@ function App() {
                 GitHub
               </a>
               <a
-                href="https://linkedin.com/in/anisBelaggoun"
+                href="https://www.linkedin.com/in/anis-belaggoun-1aa4a72a4/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
