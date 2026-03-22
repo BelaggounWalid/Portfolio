@@ -8,34 +8,33 @@ interface Message {
 
 const knowledgeBase = {
   formation: "Anis est actuellement en Master Informatique à l'Université Claude Bernard Lyon 1 depuis septembre 2025. Il a obtenu sa Licence Informatique à l'Université d'Avignon (2023-2025). Il a également fait une classe préparatoire intégrée à l'ESI en Algérie (2021-2023).",
-  projets: "Les projets d'Anis incluent : 1) Chatbot RH Intelligent basé sur RAG avec LangChain et ChromaDB, 2) StudyHive - plateforme collaborative avec lecture YouTube synchronisée et WebRTC, 3) Clone de Wordle avec Word2Vec, 4) WildFire Simulation en Java, 5) Monitoring System en Python avec Flask.",
-  competences: "Anis maîtrise l'Intelligence Artificielle (Python, Pandas, NumPy, NLP, HuggingFace), le Développement Web (React, Node.js, TypeScript, Tailwind), le Backend (Express, Flask, MongoDB), DevOps (Git, Docker, CI/CD). Il parle anglais niveau C2 certifié LanguageCert et français courant.",
-  experience: "Anis a effectué un stage de recherche au Laboratoire de Mathématiques d'Avignon (mai-juillet 2025) sur l'Approximate Bayesian Computation. Il recherche une alternance à partir de septembre 2025.",
+  projets: "Les projets d'Anis incluent : 1) EkoaluElevationsPro - outil de génération d'élévations menuiserie aluminium SAPA (projet Ekoalu), 2) Sapa GraphRAG - système Graph RAG pour l'immobilier (projet Ekoalu), 3) Chatbot RH Intelligent basé sur RAG avec LangChain et ChromaDB, 4) gmaiLTracker - outil de tracking email, 5) StudyHive - plateforme collaborative avec lecture YouTube synchronisée, 6) Clone de Wordle avec Word2Vec, 7) WildFire Simulation en Java, 8) Monitoring System en Python.",
+  competences: "Anis maîtrise l'Intelligence Artificielle (Python, Pandas, NumPy, NLP, HuggingFace, LangChain, RAG), le Développement Web (React, Node.js, TypeScript, Tailwind), le Backend (Express, Flask, MongoDB), DevOps (Git, Docker, CI/CD). Il parle anglais niveau C2 certifié LanguageCert et français courant.",
+  experience: "Anis est actuellement en alternance chez Ekoalu en IA et Automatisation depuis septembre 2025. Il y développe des outils d'IA pour l'industrie de la menuiserie aluminium, notamment EkoaluElevationsPro et un système Graph RAG. Il a aussi effectué un stage de recherche au Laboratoire de Mathématiques d'Avignon (mai-juillet 2025) sur l'Approximate Bayesian Computation.",
   contact: "Email: aniswalidbelaggoun@gmail.com, Discord: anisbelaggoun_46805, LinkedIn: https://www.linkedin.com/in/anis-belaggoun-1aa4a72a4/, GitHub: BelaggounWalid, Localisation: Villeurbanne (69100), France.",
-  presentation: "Anis BELAGGOUN est étudiant en Master Informatique à Lyon 1, passionné par l'IA et le développement web. Il a 22 ans et recherche une alternance."
+  presentation: "Anis BELAGGOUN est étudiant en Master Informatique à Lyon 1, en alternance chez Ekoalu en IA et Automatisation. Il a 22 ans et est passionné par l'IA et le développement web."
 };
 
-const DEEPSEEK_API_KEY = 'sk-1fe1f7693c5b46698f7c59b10148dad4';
+const DEEPSEEK_API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY || '';
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
 
 const retrieveContext = (query: string): string => {
   const lowerQuery = query.toLowerCase();
   let context = "Information sur Anis BELAGGOUN:\n\n";
-  
+
   const relevantSections = [];
   if (lowerQuery.includes('formation') || lowerQuery.includes('étud') || lowerQuery.includes('diplôm')) relevantSections.push(knowledgeBase.formation);
-  if (lowerQuery.includes('projet') || lowerQuery.includes('réalisat')) relevantSections.push(knowledgeBase.projets);
+  if (lowerQuery.includes('projet') || lowerQuery.includes('réalisat') || lowerQuery.includes('ekoalu') || lowerQuery.includes('sapa')) relevantSections.push(knowledgeBase.projets);
   if (lowerQuery.includes('compéten') || lowerQuery.includes('skill') || lowerQuery.includes('technolog')) relevantSections.push(knowledgeBase.competences);
-  if (lowerQuery.includes('expérience') || lowerQuery.includes('stage') || lowerQuery.includes('alternance')) relevantSections.push(knowledgeBase.experience);
+  if (lowerQuery.includes('expérience') || lowerQuery.includes('stage') || lowerQuery.includes('alternance') || lowerQuery.includes('travail') || lowerQuery.includes('ekoalu')) relevantSections.push(knowledgeBase.experience);
   if (lowerQuery.includes('contact') || lowerQuery.includes('email') || lowerQuery.includes('discord') || lowerQuery.includes('linkedin')) relevantSections.push(knowledgeBase.contact);
-  
+
   if (relevantSections.length === 0) {
-    // Return all context if no specific match
     context += knowledgeBase.presentation + "\n\n" + knowledgeBase.formation + "\n\n" + knowledgeBase.projets;
   } else {
     context += relevantSections.join("\n\n");
   }
-  
+
   return context;
 };
 
@@ -64,9 +63,8 @@ export default function Chatbot({ isDark }: { isDark: boolean }) {
     setInputValue('');
     setIsLoading(true);
 
-    // Retrieve relevant context
     const context = retrieveContext(inputValue);
-    
+
     try {
       const response = await fetch(DEEPSEEK_API_URL, {
         method: 'POST',
@@ -79,7 +77,7 @@ export default function Chatbot({ isDark }: { isDark: boolean }) {
           messages: [
             {
               role: 'system',
-              content: `Tu es l'assistant virtuel d'Anis BELAGGOUN, étudiant en Master Informatique. Réponds toujours en français de manière amicale et professionnelle. Utilise uniquement les informations fournies dans le contexte.`
+              content: `Tu es l'assistant virtuel d'Anis BELAGGOUN, étudiant en Master Informatique et alternant chez Ekoalu. Réponds toujours en français de manière amicale et professionnelle. Utilise uniquement les informations fournies dans le contexte.`
             },
             {
               role: 'user',
@@ -93,7 +91,7 @@ export default function Chatbot({ isDark }: { isDark: boolean }) {
 
       const data = await response.json();
       const botResponse = data.choices?.[0]?.message?.content || "Désolé, je n'ai pas pu obtenir de réponse.";
-      
+
       setMessages(prev => [...prev, { text: botResponse, isBot: true }]);
     } catch (error) {
       console.error('Error calling Deepseek API:', error);
@@ -114,17 +112,13 @@ export default function Chatbot({ isDark }: { isDark: boolean }) {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 p-4 rounded-full shadow-2xl transition-all transform hover:scale-110 z-50 ${
-          isDark
-            ? 'bg-blue-600 hover:bg-blue-700'
-            : 'bg-blue-600 hover:bg-blue-700'
-        }`}
+        className="fixed bottom-6 right-6 p-4 rounded-full shadow-2xl transition-all transform hover:scale-110 z-50 bg-blue-600 hover:bg-blue-700"
       >
         <MessageCircle size={28} className="text-white" />
       </button>
 
       {isOpen && (
-        <div className={`fixed bottom-24 right-6 w-96 h-[500px] rounded-2xl shadow-2xl flex flex-col z-50 ${
+        <div className={`fixed bottom-24 right-6 w-96 max-w-[calc(100vw-3rem)] h-[500px] rounded-2xl shadow-2xl flex flex-col z-50 ${
           isDark ? 'bg-gray-800' : 'bg-white'
         }`}>
           <div className="flex items-center justify-between p-4 border-b bg-blue-600 rounded-t-2xl">
@@ -184,7 +178,7 @@ export default function Chatbot({ isDark }: { isDark: boolean }) {
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyPress}
                 placeholder="Posez votre question..."
                 className={`flex-1 px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-600 ${
                   isDark
