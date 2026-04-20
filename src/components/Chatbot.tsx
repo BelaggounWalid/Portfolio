@@ -15,8 +15,7 @@ const knowledgeBase = {
   presentation: "Anis BELAGGOUN est étudiant en Master Informatique à Lyon 1, en alternance chez Ekoalu en IA et Automatisation. Il a 22 ans et est passionné par l'IA et le développement web."
 };
 
-const DEEPSEEK_API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY || '';
-const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+const CHAT_API_URL = '/.netlify/functions/chat';
 
 const retrieveContext = (query: string): string => {
   const lowerQuery = query.toLowerCase();
@@ -66,14 +65,10 @@ export default function Chatbot({ isDark }: { isDark: boolean }) {
     const context = retrieveContext(inputValue);
 
     try {
-      const response = await fetch(DEEPSEEK_API_URL, {
+      const response = await fetch(CHAT_API_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'deepseek-chat',
           messages: [
             {
               role: 'system',
@@ -83,18 +78,20 @@ export default function Chatbot({ isDark }: { isDark: boolean }) {
               role: 'user',
               content: `Contexte sur Anis:\n${context}\n\nQuestion de l'utilisateur: ${inputValue}`
             }
-          ],
-          temperature: 0.7,
-          max_tokens: 500
+          ]
         })
       });
+
+      if (!response.ok) {
+        throw new Error(`API error ${response.status}`);
+      }
 
       const data = await response.json();
       const botResponse = data.choices?.[0]?.message?.content || "Désolé, je n'ai pas pu obtenir de réponse.";
 
       setMessages(prev => [...prev, { text: botResponse, isBot: true }]);
     } catch (error) {
-      console.error('Error calling Deepseek API:', error);
+      console.error('Error calling chat API:', error);
       setMessages(prev => [...prev, { text: "Désolé, une erreur s'est produite. Veuillez réessayer.", isBot: true }]);
     } finally {
       setIsLoading(false);
