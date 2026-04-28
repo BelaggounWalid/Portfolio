@@ -20,7 +20,8 @@ export default function Chatbot() {
   async function send() {
     if (!input.trim() || loading) return;
     const q = input;
-    setMessages((m) => [...m, { text: q, isBot: false }]);
+    const next = [...messages, { text: q, isBot: false }];
+    setMessages(next);
     setInput('');
     setLoading(true);
     try {
@@ -30,7 +31,10 @@ export default function Chatbot() {
         body: JSON.stringify({
           messages: [
             { role: 'system', content: SYSTEM_PROMPT },
-            { role: 'user', content: q },
+            ...next.map((m) => ({
+              role: m.isBot ? 'assistant' : 'user',
+              content: m.text,
+            })),
           ],
         }),
       });
