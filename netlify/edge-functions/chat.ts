@@ -1,12 +1,13 @@
-import OpenAI from 'openai';
+/// <reference types="https://edge.netlify.com" />
+import OpenAI from 'npm:openai@^6.34.0';
 
 export default async (req: Request): Promise<Response> => {
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
-  const assistantId = process.env.OPENAI_ASSISTANT_ID;
+  const apiKey = Netlify.env.get('OPENAI_API_KEY');
+  const assistantId = Netlify.env.get('OPENAI_ASSISTANT_ID');
   if (!apiKey || !assistantId) {
     return new Response(
       JSON.stringify({ error: 'Missing OPENAI_API_KEY or OPENAI_ASSISTANT_ID' }),
@@ -75,9 +76,9 @@ export default async (req: Request): Promise<Response> => {
     headers: {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
     },
   });
 };
 
-export const config = { path: '/.netlify/functions/chat' };
+export const config = { path: '/api/chat' };
