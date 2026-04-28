@@ -24,24 +24,76 @@ export default function Chatbot() {
   async function send() {
     if (!input.trim() || loading) return;
     const q = input;
-    setMessages((m) => [...m, { text: q, isBot: false }]);
+    setMessages((m) => [...m, { text: q, isBot: false }, { text: '', isBot: true }]);
     setInput('');
     setLoading(true);
+
+    const appendToken = (token: string) => {
+      setMessages((m) => {
+        const last = m[m.length - 1];
+        return [...m.slice(0, -1), { ...last, text: last.text + token }];
+      });
+    };
+
+    const replaceLast = (text: string) => {
+      setMessages((m) => [...m.slice(0, -1), { text, isBot: true }]);
+    };
+
     try {
       const res = await fetch('/.netlify/functions/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: q, threadId }),
       });
-      const data = await res.json();
-      if (data.threadId && data.threadId !== threadId) {
-        setThreadId(data.threadId);
-        localStorage.setItem(THREAD_KEY, data.threadId);
+
+      if (!res.body) {
+        replaceLast('Désolé, pas de réponse.');
+        return;
       }
-      const reply = data.reply ?? data.error ?? "Désolé, pas de réponse.";
-      setMessages((m) => [...m, { text: reply, isBot: true }]);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const events = buffer.split('\n\n');
+        buffer = events.pop() ?? '';
+
+        for (const block of events) {
+          const lines = block.split('\n');
+          let eventName = 'message';
+          let dataStr = '';
+          for (const line of lines) {
+            if (line.startsWith('event: ')) eventName = line.slice(7);
+            else if (line.startsWith('data: ')) dataStr = line.slice(6);
+          }
+          if (!dataStr) continue;
+
+          let data: { threadId?: string; token?: string; error?: string };
+          try {
+            data = JSON.parse(dataStr);
+          } catch {
+            continue;
+          }
+
+          if (eventName === 'thread' && data.threadId) {
+            if (data.threadId !== threadId) {
+              setThreadId(data.threadId);
+              localStorage.setItem(THREAD_KEY, data.threadId);
+            }
+          } else if (eventName === 'token' && data.token) {
+            appendToken(data.token);
+          } else if (eventName === 'error') {
+            replaceLast(data.error ?? "Désolé, une erreur s'est produite.");
+          }
+        }
+      }
     } catch {
-      setMessages((m) => [...m, { text: "Désolé, une erreur s'est produite.", isBot: true }]);
+      replaceLast("Désolé, une erreur s'est produite.");
     } finally {
       setLoading(false);
     }
