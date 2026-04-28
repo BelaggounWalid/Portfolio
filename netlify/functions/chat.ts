@@ -1,7 +1,5 @@
 import type { Handler } from '@netlify/functions';
-
-const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
-const MODEL = 'gpt-4o-mini';
+import OpenAI from 'openai';
 
 export const handler: Handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -9,47 +7,61 @@ export const handler: Handler = async (event) => {
   }
 
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return { statusCode: 500, body: JSON.stringify({ error: 'Missing OPENAI_API_KEY' }) };
+  const assistantId = process.env.OPENAI_ASSISTANT_ID;
+  if (!apiKey || !assistantId) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Missing OPENAI_API_KEY or OPENAI_ASSISTANT_ID' }),
+    };
   }
 
+  const openai = new OpenAI({ apiKey });
+
   try {
-    const { messages } = JSON.parse(event.body || '{}');
-    if (!Array.isArray(messages)) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'messages must be an array' }) };
+    const { message, threadId } = JSON.parse(event.body || '{}');
+    if (!message || typeof message !== 'string') {
+      return { statusCode: 400, body: JSON.stringify({ error: 'message (string) required' }) };
     }
 
-    const response = await fetch(OPENAI_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages,
-        temperature: 0.7,
-        max_tokens: 500,
-      }),
+    const tid = threadId ?? (await openai.beta.threads.create()).id;
+
+    await openai.beta.threads.messages.create(tid, {
+      role: 'user',
+      content: message,
     });
 
-    const text = await response.text();
-    if (!response.ok) {
+    const run = await openai.beta.threads.runs.createAndPoll(tid, {
+      assistant_id: assistantId,
+    });
+
+    if (run.status !== 'completed') {
       return {
-        statusCode: response.status,
-        body: JSON.stringify({ error: 'OpenAI API error', status: response.status, details: text }),
+        statusCode: 500,
+        body: JSON.stringify({
+          error: `Run failed with status: ${run.status}`,
+          threadId: tid,
+          lastError: run.last_error,
+        }),
       };
     }
+
+    const list = await openai.beta.threads.messages.list(tid, { order: 'desc', limit: 1 });
+    const last = list.data[0];
+    const reply =
+      last?.content[0]?.type === 'text' ? last.content[0].text.value : 'Pas de réponse.';
 
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: text,
+      body: JSON.stringify({ reply, threadId: tid }),
     };
   } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Server error', details: err instanceof Error ? err.message : String(err) }),
+      body: JSON.stringify({
+        error: 'Server error',
+        details: err instanceof Error ? err.message : String(err),
+      }),
     };
   }
 };

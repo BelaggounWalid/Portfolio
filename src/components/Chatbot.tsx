@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 interface Msg { text: string; isBot: boolean; }
 
-const SYSTEM_PROMPT = "Tu es l'assistant d'Anis Belaggoun (Ingénieur IA, étudiant Master Info Lyon 1, alternant Ekoalu, basé à Villeurbanne). Réponds en français, professionnel mais chaleureux.";
+const THREAD_KEY = 'chatbot-thread-id';
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
@@ -11,6 +11,10 @@ export default function Chatbot() {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [threadId, setThreadId] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem(THREAD_KEY);
+  });
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -27,15 +31,14 @@ export default function Chatbot() {
       const res = await fetch('/.netlify/functions/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            { role: 'user', content: q },
-          ],
-        }),
+        body: JSON.stringify({ message: q, threadId }),
       });
       const data = await res.json();
-      const reply = data?.choices?.[0]?.message?.content ?? data?.error ?? "Désolé, pas de réponse.";
+      if (data.threadId && data.threadId !== threadId) {
+        setThreadId(data.threadId);
+        localStorage.setItem(THREAD_KEY, data.threadId);
+      }
+      const reply = data.reply ?? data.error ?? "Désolé, pas de réponse.";
       setMessages((m) => [...m, { text: reply, isBot: true }]);
     } catch {
       setMessages((m) => [...m, { text: "Désolé, une erreur s'est produite.", isBot: true }]);
