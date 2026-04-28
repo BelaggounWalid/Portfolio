@@ -1,17 +1,11 @@
-// tsx-output/src/types/index.ts — REMPLACE Portfolio/src/types/index.ts
-
 export interface Project {
   id: string;
-  num: string;
-  year: string;
   title: string;
-  role: string;
   description: string;
   tags: string[];
   iconLabel: string;
   iconBg: string;
   tagColor: string;
-  color: string;
   status?: 'completed' | 'in-progress';
   category: 'ai' | 'web' | 'tools' | 'simulation' | 'professional';
   links: { label: string; url: string; type: 'github' | 'gitlab' | 'external' }[];
@@ -24,6 +18,9 @@ export interface EducationEntry {
   logo?: string;
   period: string;
   location: string;
+  borderColor: string;
+  badgeBg: string;
+  badgeText: string;
   description?: string;
   details?: string;
 }
@@ -37,16 +34,23 @@ export interface ExperienceEntry {
   description: string;
   achievements: string[];
   tags: string[];
+  borderColor: string;
+  badgeBg: string;
+  badgeText: string;
 }
 
 export interface SkillCategory {
   id: string;
   title: string;
-  items: string[];
+  icon: string;
+  iconBg: string;
+  iconColor: string;
+  skills: string[];
+  type: 'tags' | 'list';
+  items?: { name: string; detail: string }[];
 }
 
 export interface NavItem {
   id: string;
   label: string;
-  num: string;
 }

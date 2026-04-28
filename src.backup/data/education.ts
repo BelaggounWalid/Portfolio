@@ -1,5 +1,3 @@
-// tsx-output/src/data/education.ts
-
 import { EducationEntry } from '../types';
 
 export const educationEntries: EducationEntry[] = [
@@ -8,24 +6,33 @@ export const educationEntries: EducationEntry[] = [
     title: 'Master Informatique',
     institution: 'Université Claude Bernard Lyon 1',
     logo: '/Université_Lyon_1_(logo).svg',
-    period: '2025 — présent',
+    period: 'Depuis Sept. 2025',
     location: 'Lyon, France',
+    borderColor: 'border-blue-600',
+    badgeBg: 'bg-blue-100',
+    badgeText: 'text-blue-800',
   },
   {
     id: 'avignon',
     title: 'Licence Informatique',
     institution: "Université d'Avignon",
     logo: "/Université_d'Avignon_(logo).png",
-    period: '2023 — 2025',
+    period: 'Sept. 2023 - 2025',
     location: 'Avignon, France',
+    borderColor: 'border-cyan-600',
+    badgeBg: 'bg-cyan-100',
+    badgeText: 'text-cyan-800',
   },
   {
     id: 'esi',
     title: 'Classe Préparatoire Intégrée',
-    institution: 'ESI — École Supérieure en Informatique',
+    institution: 'ESI - École Supérieure en Informatique',
     logo: '/ESI-SBA_logo_V2.svg',
-    period: '2021 — 2023',
+    period: 'Sept. 2021 - Juin 2023',
     location: 'Algérie',
-    details: 'Membre du pôle relations externes — Club Ingeniums : organisation de CTFs et hackathons',
+    borderColor: 'border-slate-600',
+    badgeBg: 'bg-slate-100',
+    badgeText: 'text-slate-800',
+    details: 'Membre du pôle relations externes - Club Ingeniums : Organisation de CTFs et hackathons',
   },
 ];

@@ -1,200 +1,100 @@
-import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
+// tsx-output/src/components/Chatbot.tsx
+import { useEffect, useRef, useState } from 'react';
 
-interface Message {
-  text: string;
-  isBot: boolean;
+interface Msg { text: string; isBot: boolean; }
+
+declare global {
+  interface Window {
+    claude?: { complete: (prompt: string) => Promise<string> };
+  }
 }
 
-const knowledgeBase = {
-  formation: "Anis est actuellement en Master Informatique à l'Université Claude Bernard Lyon 1 depuis septembre 2025. Il a obtenu sa Licence Informatique à l'Université d'Avignon (2023-2025). Il a également fait une classe préparatoire intégrée à l'ESI en Algérie (2021-2023).",
-  projets: "Les projets d'Anis incluent : 1) EkoaluElevationsPro - outil de génération d'élévations menuiserie aluminium SAPA (projet Ekoalu), 2) Sapa GraphRAG - système Graph RAG pour l'immobilier (projet Ekoalu), 3) Chatbot RH Intelligent basé sur RAG avec LangChain et ChromaDB, 4) gmaiLTracker - outil de tracking email, 5) StudyHive - plateforme collaborative avec lecture YouTube synchronisée, 6) Clone de Wordle avec Word2Vec, 7) WildFire Simulation en Java, 8) Monitoring System en Python.",
-  competences: "Anis maîtrise l'Intelligence Artificielle (Python, Pandas, NumPy, NLP, HuggingFace, LangChain, RAG), le Développement Web (React, Node.js, TypeScript, Tailwind), le Backend (Express, Flask, MongoDB), DevOps (Git, Docker, CI/CD). Il parle anglais niveau C2 certifié LanguageCert et français courant.",
-  experience: "Anis est actuellement en alternance chez Ekoalu en IA et Automatisation depuis septembre 2025. Il y développe des outils d'IA pour l'industrie de la menuiserie aluminium, notamment EkoaluElevationsPro et un système Graph RAG. Il a aussi effectué un stage de recherche au Laboratoire de Mathématiques d'Avignon (mai-juillet 2025) sur l'Approximate Bayesian Computation.",
-  contact: "Email: aniswalidbelaggoun@gmail.com, Discord: anisbelaggoun_46805, LinkedIn: https://www.linkedin.com/in/anis-belaggoun-1aa4a72a4/, GitHub: BelaggounWalid, Localisation: Villeurbanne (69100), France.",
-  presentation: "Anis BELAGGOUN est étudiant en Master Informatique à Lyon 1, en alternance chez Ekoalu en IA et Automatisation. Il a 22 ans et est passionné par l'IA et le développement web."
-};
-
-const CHAT_API_URL = '/.netlify/functions/chat';
-
-const retrieveContext = (query: string): string => {
-  const lowerQuery = query.toLowerCase();
-  let context = "Information sur Anis BELAGGOUN:\n\n";
-
-  const relevantSections = [];
-  if (lowerQuery.includes('formation') || lowerQuery.includes('étud') || lowerQuery.includes('diplôm')) relevantSections.push(knowledgeBase.formation);
-  if (lowerQuery.includes('projet') || lowerQuery.includes('réalisat') || lowerQuery.includes('ekoalu') || lowerQuery.includes('sapa')) relevantSections.push(knowledgeBase.projets);
-  if (lowerQuery.includes('compéten') || lowerQuery.includes('skill') || lowerQuery.includes('technolog')) relevantSections.push(knowledgeBase.competences);
-  if (lowerQuery.includes('expérience') || lowerQuery.includes('stage') || lowerQuery.includes('alternance') || lowerQuery.includes('travail') || lowerQuery.includes('ekoalu')) relevantSections.push(knowledgeBase.experience);
-  if (lowerQuery.includes('contact') || lowerQuery.includes('email') || lowerQuery.includes('discord') || lowerQuery.includes('linkedin')) relevantSections.push(knowledgeBase.contact);
-
-  if (relevantSections.length === 0) {
-    context += knowledgeBase.presentation + "\n\n" + knowledgeBase.formation + "\n\n" + knowledgeBase.projets;
-  } else {
-    context += relevantSections.join("\n\n");
-  }
-
-  return context;
-};
-
-export default function Chatbot({ isDark }: { isDark: boolean }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    { text: "Bonjour ! Je suis l'assistant virtuel d'Anis. Posez-moi des questions sur son parcours, ses compétences ou ses projets !", isBot: true }
+export default function Chatbot() {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState<Msg[]>([
+    { text: "Bonjour. Posez-moi des questions sur le parcours, les compétences ou les projets d'Anis.", isBot: true }
   ]);
-  const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollToBottom();
+    endRef.current?.scrollTo({ top: 99999 });
   }, [messages]);
 
-  const handleSend = async () => {
-    if (!inputValue.trim() || isLoading) return;
-
-    const userMessage: Message = { text: inputValue, isBot: false };
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
-    setIsLoading(true);
-
-    const context = retrieveContext(inputValue);
-
+  async function send() {
+    if (!input.trim() || loading) return;
+    const q = input;
+    setMessages((m) => [...m, { text: q, isBot: false }]);
+    setInput('');
+    setLoading(true);
     try {
-      const response = await fetch(CHAT_API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [
-            {
-              role: 'system',
-              content: `Tu es l'assistant virtuel d'Anis BELAGGOUN, étudiant en Master Informatique et alternant chez Ekoalu. Réponds toujours en français de manière amicale et professionnelle. Utilise uniquement les informations fournies dans le contexte.`
-            },
-            {
-              role: 'user',
-              content: `Contexte sur Anis:\n${context}\n\nQuestion de l'utilisateur: ${inputValue}`
-            }
-          ]
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`API error ${response.status}`);
-      }
-
-      const data = await response.json();
-      const botResponse = data.choices?.[0]?.message?.content || "Désolé, je n'ai pas pu obtenir de réponse.";
-
-      setMessages(prev => [...prev, { text: botResponse, isBot: true }]);
-    } catch (error) {
-      console.error('Error calling chat API:', error);
-      setMessages(prev => [...prev, { text: "Désolé, une erreur s'est produite. Veuillez réessayer.", isBot: true }]);
+      const reply = window.claude
+        ? await window.claude.complete(
+            `Tu es l'assistant d'Anis Belaggoun (Ingénieur IA, étudiant Master Info Lyon 1, alternant Ekoalu, basé à Villeurbanne). Réponds en français, professionnel mais chaleureux. Question: ${q}`
+          )
+        : "Le chatbot n'est pas disponible dans cet environnement.";
+      setMessages((m) => [...m, { text: reply, isBot: true }]);
+    } catch {
+      setMessages((m) => [...m, { text: "Désolé, une erreur s'est produite.", isBot: true }]);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
+  }
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 p-4 rounded-full shadow-2xl transition-all transform hover:scale-110 z-50 bg-blue-600 hover:bg-blue-700"
-      >
-        <MessageCircle size={28} className="text-white" />
+      <button onClick={() => setOpen(true)} style={{
+        position: 'fixed', bottom: 24, right: 24, zIndex: 90,
+        width: 56, height: 56, borderRadius: '50%',
+        background: 'var(--accent)', border: 'none', cursor: 'pointer',
+        display: open ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center',
+        animation: 'chatPulse 2.4s ease-in-out infinite',
+      }}>
+        <span style={{ fontSize: 22, color: 'var(--bg)' }}>✦</span>
       </button>
 
-      {isOpen && (
-        <div className={`fixed bottom-24 right-6 w-96 max-w-[calc(100vw-3rem)] h-[500px] rounded-2xl shadow-2xl flex flex-col z-50 ${
-          isDark ? 'bg-gray-800' : 'bg-white'
-        }`}>
-          <div className="flex items-center justify-between p-4 border-b bg-blue-600 rounded-t-2xl">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                <MessageCircle size={20} className="text-blue-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-white">Assistant Anis</h3>
-                <p className="text-xs text-blue-100">En ligne</p>
-              </div>
+      {open && (
+        <div style={{
+          position: 'fixed', bottom: 24, right: 24, zIndex: 91,
+          width: 380, maxWidth: 'calc(100vw - 32px)',
+          height: 520, maxHeight: 'calc(100vh - 48px)',
+          background: 'var(--bg-2)', border: '1px solid var(--line)',
+          display: 'flex', flexDirection: 'column',
+          animation: 'chatIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)',
+        }}>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div className="mono" style={{ fontSize: 10, color: 'var(--accent)', letterSpacing: '0.2em' }}>● ASSISTANT</div>
+              <div className="display" style={{ fontSize: 20 }}>Demande à Anis</div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-1 hover:bg-blue-700 rounded-lg transition-colors"
-            >
-              <X size={20} className="text-white" />
-            </button>
+            <button onClick={() => setOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--fg-2)', cursor: 'pointer', fontSize: 18, padding: 4 }}>×</button>
           </div>
 
-          <div className={`flex-1 overflow-y-auto p-4 space-y-4 ${
-            isDark ? 'bg-gray-900' : 'bg-gray-50'
-          }`}>
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
-              >
-                <div
-                  className={`max-w-[80%] p-3 rounded-2xl ${
-                    message.isBot
-                      ? isDark
-                        ? 'bg-gray-700 text-white'
-                        : 'bg-white text-gray-900 shadow-md'
-                      : 'bg-blue-600 text-white'
-                  }`}
-                >
-                  <p className="text-sm leading-relaxed">{message.text}</p>
-                </div>
-              </div>
+          <div ref={endRef} style={{ flex: 1, overflowY: 'auto', padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {messages.map((m, i) => (
+              <div key={i} style={{
+                alignSelf: m.isBot ? 'flex-start' : 'flex-end',
+                maxWidth: '85%', padding: '10px 14px',
+                background: m.isBot ? 'transparent' : 'var(--accent)',
+                color: m.isBot ? 'var(--fg)' : 'var(--bg)',
+                border: m.isBot ? '1px solid var(--line)' : 'none',
+                fontSize: 14, lineHeight: 1.5,
+              }}>{m.text}</div>
             ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className={`max-w-[80%] p-3 rounded-2xl ${
-                  isDark ? 'bg-gray-700 text-white' : 'bg-white text-gray-900 shadow-md'
-                }`}>
-                  <Loader2 className="animate-spin" size={20} />
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
+            {loading && <div className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>...</div>}
           </div>
 
-          <div className={`p-4 border-t ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyPress}
-                placeholder="Posez votre question..."
-                className={`flex-1 px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-                  isDark
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                    : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500'
-                }`}
-              />
-              <button
-                onClick={handleSend}
-                disabled={isLoading}
-                className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <Loader2 size={20} className="text-white animate-spin" />
-                ) : (
-                  <Send size={20} className="text-white" />
-                )}
-              </button>
-            </div>
+          <div style={{ padding: 16, borderTop: '1px solid var(--line)', display: 'flex', gap: 8 }}>
+            <input value={input} onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && send()}
+              placeholder="Pose une question…"
+              className="mono"
+              style={{ flex: 1, padding: '10px 12px', background: 'var(--bg)', border: '1px solid var(--line)', color: 'var(--fg)', fontSize: 13, outline: 'none' }} />
+            <button onClick={send} disabled={loading} className="mono" style={{
+              padding: '10px 16px', background: 'var(--accent)', color: 'var(--bg)',
+              border: 'none', cursor: 'pointer', fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase',
+            }}>Send</button>
           </div>
         </div>
       )}
